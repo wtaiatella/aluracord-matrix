@@ -1,36 +1,7 @@
 import { Box, Button, Text, TextField, Image } from '@skynexui/components'
+import React from 'react'
+import { useRouter } from 'next/router'
 import appConfig from '../config.json'
-
-function GlobalStyle() {
-  return (
-    <style global jsx>{`
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        list-style: none;
-      }
-      body {
-        font-family: 'Open Sans', sans-serif;
-      }
-      /* App fit Height */
-      html,
-      body,
-      #__next {
-        min-height: 100vh;
-        display: flex;
-        flex: 1;
-      }
-      #__next {
-        flex: 1;
-      }
-      #__next > * {
-        flex: 1;
-      }
-      /* ./App fit Height */
-    `}</style>
-  )
-}
 
 function Title(props) {
   const Tag = props.tag || 'h1'
@@ -62,11 +33,19 @@ function Title(props) {
 // export default HomePage
 
 export default function PaginaInicial() {
-  const username = 'peas'
+  //maneira tradicional para declarar variavel, mas não funciona com o React
+  //const username = 'wtaiatella'
+  //no React tem que usar o useState para que o React possa atualizar o valor da variavel
+  //caso contrario o navegador não consegue fazer isso sozinho e fica gerando erro no console
+
+  // Maneira correta utlizando useState
+  const [username, setUsername] = React.useState('wtaiatella')
+
+  // HOOK para usar atualização de tela do Next
+  const route = useRouter()
 
   return (
     <>
-      <GlobalStyle />
       <Box
         styleSheet={{
           display: 'flex',
@@ -93,7 +72,7 @@ export default function PaginaInicial() {
             maxWidth: '700px',
             borderRadius: '5px',
             padding: '32px',
-            margin: '16px',
+            margin: '40px',
             boxShadow: '0 2px 10px 0 rgb(0 0 0 / 20%)',
             backgroundColor: appConfig.theme.colors.neutrals[700],
           }}
@@ -101,6 +80,20 @@ export default function PaginaInicial() {
           {/* Formulário */}
           <Box
             as="form"
+            onSubmit={function (event) {
+              event.preventDefault()
+
+              // maneira tradicional para carregamento de página
+              // window.location.href = '/chat'
+
+              /* maneira com que o React Next carrega a página e fica mais suave a transição
+              HOOK do react
+              precisa ter:
+              import { useRouter } from 'next/router' no topo do arquivo e,
+
+              const route = useRouter(); no inicio da função */
+              route.push('/chat')
+            }}
             styleSheet={{
               display: 'flex',
               flexDirection: 'column',
@@ -111,7 +104,7 @@ export default function PaginaInicial() {
               marginBottom: '32px',
             }}
           >
-            <Title tag="h2">Boas vindas de volta!</Title>
+            <Title tag="h1">Boas vindas de volta!</Title>
             <Text
               variant="body3"
               styleSheet={{
@@ -122,17 +115,44 @@ export default function PaginaInicial() {
               {appConfig.name}
             </Text>
 
-            <TextField
-              fullWidth
-              textFieldColors={{
-                neutral: {
-                  textColor: appConfig.theme.colors.neutrals[200],
-                  mainColor: appConfig.theme.colors.neutrals[900],
-                  mainColorHighlight: appConfig.theme.colors.primary[500],
-                  backgroundColor: appConfig.theme.colors.neutrals[800],
-                },
+            {/* <input
+              type="text"
+              value={username}
+              //quando usuario digitar novo valor no campo input em tela, chama a função
+              onChange={function (event) {
+                // Onde está o novo valor?
+                const valor = event.target.value
+                // Atualizar o valor da variavel
+                setUsername(valor)
               }}
-            />
+            /> */}
+
+            {
+              <TextField
+                fullWidth
+                value={username}
+                //quando usuario digitar novo valor no campo input em tela, chama a função
+                onChange={function (event) {
+                  // Onde está o novo valor?
+                  const valor = event.target.value
+                  // Atualizar o valor da variavel some3nte se for maior que 2 caracteres
+                  console.log(valor)
+                  if (valor.lenght > 2) {
+                    console.log('e maior')
+                  }
+                  setUsername(valor)
+                }}
+                textFieldColors={{
+                  neutral: {
+                    textColor: appConfig.theme.colors.neutrals[200],
+                    mainColor: appConfig.theme.colors.neutrals[900],
+                    mainColorHighlight: appConfig.theme.colors.primary[500],
+                    backgroundColor: appConfig.theme.colors.neutrals[800],
+                  },
+                }}
+              />
+            }
+
             <Button
               type="submit"
               label="Entrar"
@@ -153,10 +173,10 @@ export default function PaginaInicial() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              maxWidth: '200px',
+              maxWidth: '250px',
               padding: '16px',
               backgroundColor: appConfig.theme.colors.neutrals[800],
-              border: '1px solid',
+              border: '2px solid',
               borderColor: appConfig.theme.colors.neutrals[999],
               borderRadius: '10px',
               flex: 1,
@@ -166,7 +186,7 @@ export default function PaginaInicial() {
             <Image
               styleSheet={{
                 borderRadius: '50%',
-                marginBottom: '16px',
+                marginBottom: '20px',
               }}
               src={`https://github.com/${username}.png`}
             />
@@ -176,7 +196,7 @@ export default function PaginaInicial() {
                 color: appConfig.theme.colors.neutrals[200],
                 backgroundColor: appConfig.theme.colors.neutrals[900],
                 padding: '3px 10px',
-                borderRadius: '1000px',
+                borderRadius: '50px',
               }}
             >
               {username}
