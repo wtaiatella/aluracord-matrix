@@ -1,29 +1,63 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components'
 import React from 'react'
 import appConfig from '../config.json'
+import { createClient } from '@supabase/supabase-js'
+
+const SUPABASE_AON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzU4NDUwNiwiZXhwIjoxOTU5MTYwNTA2fQ.6RgksygO5d46WZnSKuhsuq4_88QzwbxVzKtwz-Bu0F4'
+const SUPABASE_URL = 'https://kafvawuprsnkxuibikxm.supabase.co'
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_AON_KEY)
 
 export default function ChatPage() {
   const [mensagem, setMensagem] = React.useState('')
   const [listaDeMensagens, setListaDeMensagens] = React.useState([])
   //ação do usuario
   /* 
-//Usuario
-- usuario digital a mensagem
-- aperta enter pra enviar
-- a mensagem tem que aparecer na listagem
+   //Usuario
+   - usuario digital a mensagem
+   - aperta enter pra enviar
+   - a mensagem tem que aparecer na listagem
 
-//dev
-[x] campo de escrever mensagem criado
-[ ] usar onChange e useState monitorar a ultima tecla pressionada, se for ENTER
-[ ] apagar mensagem se ultima tecla for ENTER
-[ ] adicionar a menssagem digitada na lista de mensagens
+   //dev
+   [x] campo de escrever mensagem criado
+   [x] usar onChange e useState monitorar a ultima tecla pressionada, se for ENTER
+   [x] apagar mensagem se ultima tecla for ENTER
+   [x] adicionar a menssagem digitada na lista de mensagens
+   [x] conectar com banco de dados Supabase
+   [ ] salvar mensagens no banco de dados
+   [ ] lêr mensagens do banco de dados
 
-*/
+
+   */
 
   // Sua lógica vai aqui
 
+  React.useEffect(() => {
+    const dadosDoSupabase = supabaseClient
+      .from('mensagens')
+      .select('*')
+      .order('id', { ascending: false })
+      .then(({ data }) => {
+        console.log('Dados da Consulta:', data)
+        setListaDeMensagens(data)
+      })
+    console.log(dadosDoSupabase)
+  }, [])
+
   function handleNovaMensagem(novaMensagem) {
-    setListaDeMensagens([...listaDeMensagens, novaMensagem])
+    const mensagens = {
+      //id: listaDeMensagens.length + 1,
+      de: 'vanessametonini',
+      texto: novaMensagem,
+    }
+    supabaseClient
+      .from('mensagens')
+      .insert([mensagens])
+      .then(({ data }) => {
+        //console.log('Criando Mensagem: ', data)
+        setListaDeMensagens([data[0], ...listaDeMensagens])
+      })
+
     setMensagem('')
   }
   // ./Sua lógica vai aqui
@@ -68,12 +102,16 @@ export default function ChatPage() {
             padding: '16px',
           }}
         >
-          {/* <MessageList mensagens={[]} /> */}
-          {/* <MessageList /> */}
-          Lista de Mensagens:
+          <MessageList mensagens={listaDeMensagens} />
+
+          {/* Lista de Mensagens:
           {listaDeMensagens.map((mensagemAtual) => {
-            return <li key={mensagemAtual}>{mensagemAtual}</li>
-          })}
+            return (
+              <li key={mensagemAtual.id}>
+                {mensagemAtual.de}: {mensagemAtual.texto}
+              </li>
+            )
+          })} */}
           <Box
             as="form"
             styleSheet={{
@@ -150,49 +188,64 @@ function MessageList(props) {
         flex: 1,
         color: appConfig.theme.colors.neutrals['000'],
         marginBottom: '16px',
+        width: '100%',
       }}
     >
-      <Text
-        key={mensagem.id}
-        tag="li"
-        styleSheet={{
-          borderRadius: '5px',
-          padding: '6px',
-          marginBottom: '12px',
-          hover: {
-            backgroundColor: appConfig.theme.colors.neutrals[700],
-          },
-        }}
-      >
-        <Box
-          styleSheet={{
-            marginBottom: '8px',
-          }}
-        >
-          <Image
-            styleSheet={{
-              width: '20px',
-              height: '20px',
-              borderRadius: '50%',
-              display: 'inline-block',
-              marginRight: '8px',
-            }}
-            src={`https://github.com/vanessametonini.png`}
-          />
-          <Text tag="strong">{mensagem.de}</Text>
+      {props.mensagens.map((mensagem) => {
+        return (
           <Text
+            key={mensagem.id}
+            tag="li"
             styleSheet={{
-              fontSize: '10px',
-              marginLeft: '8px',
-              color: appConfig.theme.colors.neutrals[300],
+              borderRadius: '5px',
+              padding: '6px',
+              marginBottom: '12px',
+              hover: {
+                backgroundColor: appConfig.theme.colors.neutrals[700],
+              },
             }}
-            tag="span"
           >
-            {new Date().toLocaleDateString()}
+            <Box
+              styleSheet={{
+                marginBottom: '8px',
+                flex: 1,
+              }}
+            >
+              <Image
+                styleSheet={{
+                  flex: 1,
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  display: 'inline-block',
+                  marginRight: '8px',
+                }}
+                src={`https://github.com/${mensagem.de}.png`}
+              />
+              <Text
+                styleSheet={{
+                  flex: 1,
+                }}
+                tag="strong"
+              >
+                {mensagem.de}
+              </Text>
+
+              <Text
+                styleSheet={{
+                  fontSize: '10px',
+                  marginLeft: '8px',
+                  color: appConfig.theme.colors.neutrals[300],
+                }}
+                tag="span"
+              >
+                {new Date().toLocaleDateString()}
+              </Text>
+            </Box>
+            {mensagem.texto}
           </Text>
-        </Box>
-        {mensagem.texto}
-      </Text>
+        )
+      })}
     </Box>
   )
 }
