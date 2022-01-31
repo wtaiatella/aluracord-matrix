@@ -92,7 +92,8 @@ export default function PaginaInicial() {
               import { useRouter } from 'next/router' no topo do arquivo e,
 
               const route = useRouter(); no inicio da função */
-              route.push('/chat')
+
+              route.push(`/chat?username=${username}`)
             }}
             styleSheet={{
               display: 'flex',

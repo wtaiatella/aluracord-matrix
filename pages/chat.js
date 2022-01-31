@@ -2,6 +2,7 @@ import { Box, Text, TextField, Image, Button } from '@skynexui/components'
 import React from 'react'
 import appConfig from '../config.json'
 import { createClient } from '@supabase/supabase-js'
+import { useRouter } from 'next/router'
 
 const SUPABASE_AON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzU4NDUwNiwiZXhwIjoxOTU5MTYwNTA2fQ.6RgksygO5d46WZnSKuhsuq4_88QzwbxVzKtwz-Bu0F4'
@@ -9,6 +10,10 @@ const SUPABASE_URL = 'https://kafvawuprsnkxuibikxm.supabase.co'
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_AON_KEY)
 
 export default function ChatPage() {
+  // HOOK para usar atualização de tela do Next
+  const route = useRouter()
+  const usuarioLogado = route.query.username
+  console.log(usuarioLogado)
   const [mensagem, setMensagem] = React.useState('')
   const [listaDeMensagens, setListaDeMensagens] = React.useState([])
   //ação do usuario
@@ -47,7 +52,7 @@ export default function ChatPage() {
   function handleNovaMensagem(novaMensagem) {
     const mensagens = {
       //id: listaDeMensagens.length + 1,
-      de: 'vanessametonini',
+      de: usuarioLogado,
       texto: novaMensagem,
     }
     supabaseClient
