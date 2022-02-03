@@ -3,6 +3,7 @@ import React from 'react'
 import appConfig from '../config.json'
 import { createClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/router'
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker'
 
 const SUPABASE_AON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzU4NDUwNiwiZXhwIjoxOTU5MTYwNTA2fQ.6RgksygO5d46WZnSKuhsuq4_88QzwbxVzKtwz-Bu0F4'
@@ -15,7 +16,14 @@ export default function ChatPage() {
   const usuarioLogado = route.query.username
   console.log(usuarioLogado)
   const [mensagem, setMensagem] = React.useState('')
-  const [listaDeMensagens, setListaDeMensagens] = React.useState([])
+  const [listaDeMensagens, setListaDeMensagens] = React.useState([
+    /*     {
+      id: 1,
+      de: 'omariosouto',
+      texto:
+        ':sticker: https://www.alura.com.br/imersao-react-4/assets/figurinhas/Figurinha_2.png',
+    }, */
+  ])
   //ação do usuario
   /* 
    //Usuario
@@ -150,6 +158,15 @@ export default function ChatPage() {
                 color: appConfig.theme.colors.neutrals[200],
               }}
             />
+
+            {/* Inicialmente o código não tinha função callback.
+            Foi criado uma para retornar o nome do sticker quando clicado em algum. */}
+            <ButtonSendSticker
+              onStickerClick={(sticker) => {
+                console.log('[USANDO O COMPONENTE] Salva este sticker', sticker)
+                handleNovaMensagem(':sticker: ' + sticker)
+              }}
+            />
           </Box>
         </Box>
       </Box>
@@ -247,7 +264,14 @@ function MessageList(props) {
                 {new Date().toLocaleDateString()}
               </Text>
             </Box>
-            {mensagem.texto}
+            {/* testa pra saber se a mensagem começa com :sticker: */}
+            {/* Condicional: {mensagem.texto.startsWith(':sticker:').toString()} */}
+            {/* Modo Condicional declarativo */}
+            {mensagem.texto.startsWith(':sticker:') ? (
+              <Image src={mensagem.texto.replace(':sticker:', '')} />
+            ) : (
+              mensagem.texto
+            )}
           </Text>
         )
       })}
